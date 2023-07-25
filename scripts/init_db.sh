@@ -29,16 +29,16 @@ then
     postgres -N 1000
 fi
 
-export PGPASSWORD="${DB_PASSWORD}"
-until psql -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "${DB_NAME}" -c '\q'; do
+until nc -z "${DB_HOST}" "${DB_PORT}"; do
   >&2 echo "Postgres is still unavailable - sleeping"
   sleep 1
 done
 
 >&2 echo "Postgres is available on port ${DB_PORT} - continuing..."
 
-DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
 export DATABASE_URL
+
 sqlx database create
 sqlx migrate run
 
